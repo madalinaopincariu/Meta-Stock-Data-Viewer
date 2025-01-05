@@ -1,6 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
+from PIL import Image, ImageTk
+import os
+from tkinter import PhotoImage
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from src.visualizations.data_analysis import create_exploratory_visualizations
+
 
 # Funcții pentru a citi datele
 def load_yahoo_data():
@@ -62,6 +69,13 @@ def load_tabular_raw_data():
 def clear_data_display(event):
     data_display.delete(1.0, tk.END)
 
+def show_exploratory_visualizations_frame(parent_frame):
+    fig = create_exploratory_visualizations()  # Obține vizualizările exploratorii
+    if fig:
+        canvas = FigureCanvasTkAgg(fig, master=parent_frame)  # Creează canvasul cu figura
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)  # Adaugă canvas-ul în fereastră
+
 # Creare fereastră principală
 def create_ui():
     root = tk.Tk()
@@ -105,6 +119,12 @@ def create_ui():
     tabular_button.grid(row=0, column=0, padx=5, pady=5)
     tabular_label = ttk.Label(tab_tabular, text="Tabular Data")
     tabular_label.grid(row=1, column=0, padx=5, pady=5)
+
+    # Tab pentru Exploratory Visualizations
+    exploratory_tab = ttk.Frame(notebook)  # Definirea tab-ului exploratoriu
+    notebook.add(exploratory_tab, text="Exploratory Visualizations")
+    exploratory_button = ttk.Button(exploratory_tab, text="Show Exploratory Visualizations", command=lambda: show_exploratory_visualizations_frame(exploratory_tab))
+    exploratory_button.pack(pady=5)
 
     # Buton pentru încărcarea datelor raw pentru Tabular Data
     tabular_raw_button = ttk.Button(tab_tabular, text="Load Raw Tabular Data", command=load_tabular_raw_data)

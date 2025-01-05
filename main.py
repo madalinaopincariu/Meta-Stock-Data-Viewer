@@ -2,6 +2,7 @@ from src.scraping.scraper import fetch_meta_stocks_raw, clean_meta_stocks_data
 from src.api.alpha_vantage_api import fetch_alpha_vantage_data, clean_data
 from src.preprocessing.tabular_data_processing import clean_tabular_data
 from ui.data_viewer import create_ui
+from src.preprocessing.data_merging import merge_cleaned_data
 
 def main():
     # Scrape raw data from Yahoo Finance (datele necurătate vor fi salvate în raw)
@@ -27,6 +28,12 @@ def main():
     tabular_data_cleaned_path = 'data/cleaned/tabular_data_cleaned.csv'  # Fișierul cu datele tabulare curățate
     clean_tabular_data(tabular_data_raw_path, tabular_data_cleaned_path)  # Curățarea datelor tabulare
 
-if __name__ == "__main__":
+
+    merge_cleaned_data()
+
+    # Rulează interfața grafică
     app = create_ui()
     app.mainloop()
+
+if __name__ == "__main__":
+    main()

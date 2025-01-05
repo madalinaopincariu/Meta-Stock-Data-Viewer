@@ -4,3 +4,5 @@ pandas
 matplotlib
 alpha_vantage
 tkinter
+seaborn
+pillow
