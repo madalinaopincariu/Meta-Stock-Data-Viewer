@@ -3,6 +3,7 @@ from src.api.alpha_vantage_api import fetch_alpha_vantage_data, clean_data
 from src.preprocessing.tabular_data_processing import clean_tabular_data
 from ui.data_viewer import create_ui
 from src.preprocessing.data_merging import merge_cleaned_data
+from src.clustering.clustering_model import load_data, preprocess_data, apply_kmeans_clustering, visualize_clusters
 
 def main():
     # Scrape raw data from Yahoo Finance (datele necurătate vor fi salvate în raw)
@@ -27,7 +28,6 @@ def main():
     tabular_data_raw_path = 'data/raw/tabular_data.csv'  # Fișierul cu datele tabulare necurățate
     tabular_data_cleaned_path = 'data/cleaned/tabular_data_cleaned.csv'  # Fișierul cu datele tabulare curățate
     clean_tabular_data(tabular_data_raw_path, tabular_data_cleaned_path)  # Curățarea datelor tabulare
-
 
     merge_cleaned_data()
 

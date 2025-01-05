@@ -6,3 +6,4 @@ alpha_vantage
 tkinter
 seaborn
 pillow
+scikit-learn

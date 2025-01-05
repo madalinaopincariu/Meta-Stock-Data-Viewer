@@ -7,6 +7,7 @@ from tkinter import PhotoImage
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from src.visualizations.data_analysis import create_exploratory_visualizations
+from tkinter import Toplevel
 
 
 # Funcții pentru a citi datele
@@ -69,12 +70,28 @@ def load_tabular_raw_data():
 def clear_data_display(event):
     data_display.delete(1.0, tk.END)
 
-def show_exploratory_visualizations_frame(parent_frame):
-    fig = create_exploratory_visualizations()  # Obține vizualizările exploratorii
+# Funcție pentru a deschide o fereastră separată cu vizualizările exploratorii
+def open_exploratory_visualizations():
+    # Creăm o fereastră de top-level (nouă fereastră)
+    visualizations_window = Toplevel()
+    visualizations_window.title("Exploratory Visualizations")
+
+    # Obținem vizualizările exploratorii
+    fig = create_exploratory_visualizations()
     if fig:
-        canvas = FigureCanvasTkAgg(fig, master=parent_frame)  # Creează canvasul cu figura
+        canvas = FigureCanvasTkAgg(fig, master=visualizations_window)  # Creează canvas-ul cu figura
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)  # Adaugă canvas-ul în fereastră
+
+def load_clustered_data():
+    try:
+        # Încarcă fișierul cu rezultatele clustering-ului
+        df = pd.read_csv('data/merged/merged_data.csv')
+        data_display.delete(1.0, tk.END)  # Curăță zona de text
+        data_display.insert(tk.END, df.to_string())  # Afișează toate datele din dataframe
+    except Exception as e:
+        data_display.delete(1.0, tk.END)
+        data_display.insert(tk.END, f"Error loading clustered data: {e}")
 
 # Creare fereastră principală
 def create_ui():
@@ -120,15 +137,25 @@ def create_ui():
     tabular_label = ttk.Label(tab_tabular, text="Tabular Data")
     tabular_label.grid(row=1, column=0, padx=5, pady=5)
 
-    # Tab pentru Exploratory Visualizations
-    exploratory_tab = ttk.Frame(notebook)  # Definirea tab-ului exploratoriu
-    notebook.add(exploratory_tab, text="Exploratory Visualizations")
-    exploratory_button = ttk.Button(exploratory_tab, text="Show Exploratory Visualizations", command=lambda: show_exploratory_visualizations_frame(exploratory_tab))
-    exploratory_button.pack(pady=5)
-
     # Buton pentru încărcarea datelor raw pentru Tabular Data
     tabular_raw_button = ttk.Button(tab_tabular, text="Load Raw Tabular Data", command=load_tabular_raw_data)
     tabular_raw_button.grid(row=0, column=1, padx=5, pady=5)
+
+    # Tab pentru Exploratory Visualizations
+    exploratory_tab = ttk.Frame(notebook)  # Definirea tab-ului exploratoriu
+    notebook.add(exploratory_tab, text="Exploratory Visualizations")
+    
+    # Buton pentru a deschide vizualizările exploratorii într-o fereastră separată
+    exploratory_button = ttk.Button(exploratory_tab, text="Show Exploratory Visualizations", command=open_exploratory_visualizations)
+    exploratory_button.pack(pady=5)
+
+    # Tab pentru Clustering
+    tab_clustering = ttk.Frame(notebook)  # Creăm un tab pentru clustering
+    notebook.add(tab_clustering, text="Clustering")
+
+    # Buton pentru încărcarea datelor clustering
+    clustering_button = ttk.Button(tab_clustering, text="Load Clustering Data", command=load_clustered_data)
+    clustering_button.grid(row=0, column=0, padx=5, pady=5)
 
     # Zona de afișare a datelor
     global data_display
