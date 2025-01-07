@@ -83,15 +83,64 @@ def open_exploratory_visualizations():
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)  # Adaugă canvas-ul în fereastră
 
-def load_clustered_data():
+# Funcție pentru rularea clusteringului și salvarea rezultatelor
+def run_clustering():
     try:
-        # Încarcă fișierul cu rezultatele clustering-ului
-        df = pd.read_csv('data/merged/merged_data.csv')
-        data_display.delete(1.0, tk.END)  # Curăță zona de text
-        data_display.insert(tk.END, df.to_string())  # Afișează toate datele din dataframe
+        from src.clustering.clustering_model import load_data, preprocess_data, apply_kmeans_clustering
+        
+        # Încarcă datele
+        file_path = 'data/merged/merged_data.csv'
+        data = load_data(file_path)
+        
+        # Preprocesează datele
+        scaled_data = preprocess_data(data)
+        
+        # Aplică clustering
+        labels = apply_kmeans_clustering(scaled_data, n_clusters=3)
+        
+        # Adaugă etichetele clusterelor în DataFrame
+        data['Cluster'] = labels
+        
+        # Salvează datele cu clusterele într-un fișier nou
+        output_path = 'data/merged/clustered_data.csv'
+        data.to_csv(output_path, index=False)
+        
+        data_display.delete(1.0, tk.END)
+        data_display.insert(tk.END, f"Clustering completed! Results saved to {output_path}\n")
+        data_display.insert(tk.END, data.to_string())
     except Exception as e:
         data_display.delete(1.0, tk.END)
-        data_display.insert(tk.END, f"Error loading clustered data: {e}")
+        data_display.insert(tk.END, f"Error running clustering: {e}")
+
+# Funcție pentru a vizualiza clusteringul
+def visualize_clustering():
+    try:
+        from src.clustering.clustering_model import visualize_clusters, load_data
+        
+        # Încarcă datele
+        file_path = 'data/merged/clustered_data.csv'
+        data = load_data(file_path)
+        
+        # Creează vizualizarea
+        visualize_clusters(data, data['Cluster'])
+    except Exception as e:
+        data_display.delete(1.0, tk.END)
+        data_display.insert(tk.END, f"Error visualizing clustering: {e}")
+
+# Adăugarea funcționalității în tab-ul de clustering
+def create_clustering_tab(notebook):
+    tab_clustering = ttk.Frame(notebook)
+    notebook.add(tab_clustering, text="Clustering")
+    
+    # Buton pentru a rula clusteringul
+    run_clustering_button = ttk.Button(tab_clustering, text="Run Clustering", command=run_clustering)
+    run_clustering_button.grid(row=0, column=0, padx=5, pady=5)
+    
+    # Buton pentru a vizualiza clusteringul
+    visualize_clustering_button = ttk.Button(tab_clustering, text="Visualize Clustering", command=visualize_clustering)
+    visualize_clustering_button.grid(row=0, column=1, padx=5, pady=5)
+    
+    return tab_clustering
 
 # Creare fereastră principală
 def create_ui():
@@ -149,13 +198,7 @@ def create_ui():
     exploratory_button = ttk.Button(exploratory_tab, text="Show Exploratory Visualizations", command=open_exploratory_visualizations)
     exploratory_button.pack(pady=5)
 
-    # Tab pentru Clustering
-    tab_clustering = ttk.Frame(notebook)  # Creăm un tab pentru clustering
-    notebook.add(tab_clustering, text="Clustering")
-
-    # Buton pentru încărcarea datelor clustering
-    clustering_button = ttk.Button(tab_clustering, text="Load Clustering Data", command=load_clustered_data)
-    clustering_button.grid(row=0, column=0, padx=5, pady=5)
+    create_clustering_tab(notebook)
 
     # Zona de afișare a datelor
     global data_display
